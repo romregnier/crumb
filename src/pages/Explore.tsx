@@ -42,7 +42,7 @@ function CapsuleMiniCard({ capsule, onClose }: { capsule: Capsule & { lat: numbe
         borderRadius: 18,
         border: '1px solid rgba(124,58,237,0.3)',
         padding: 16,
-        zIndex: 500,
+        zIndex: 1100,
         boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
       }}
     >
@@ -123,13 +123,23 @@ export function Explore() {
           cursor: pointer;
           font-size: 18px;
           box-shadow: 0 0 20px ${color}80, 0 4px 12px rgba(0,0,0,0.4);
-          transition: transform 0.2s;
+          transition: transform 0.2s, z-index 0s;
+          position: relative;
+          pointer-events: auto !important;
+          z-index: 10;
           ${isLocked ? 'filter: brightness(0.75);' : ''}
         `
         el.textContent = isLocked ? '🔒' : '✨'
-        el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.2)' })
-        el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)' })
-        el.addEventListener('click', () => {
+        el.addEventListener('mouseenter', () => {
+          el.style.zIndex = '20'
+          el.style.transform = 'scale(1.2)'
+        })
+        el.addEventListener('mouseleave', () => {
+          el.style.zIndex = '10'
+          el.style.transform = 'scale(1)'
+        })
+        el.addEventListener('click', (e) => {
+          e.stopPropagation()
           setSelectedCapsule(capsule)
           map.current?.flyTo({ center: [capsule.lng, capsule.lat], zoom: 14, duration: 800 })
         })

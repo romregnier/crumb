@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useRef, useEffect } from 'react'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { CheckCircle, Clock, Calendar, MapPin, Puzzle } from 'lucide-react'
 import { mockCapsules, type Capsule } from '../mocks/data'
 import { useNavigate } from 'react-router-dom'
@@ -129,19 +129,134 @@ function SectionLabel({ label, color }: { label: string; color: string }) {
   )
 }
 
+// Vertical time-travel scrubber
+function TimeScrubber({ onDrag }: { onDrag: (offset: number) => void }) {
+  const thumbY = useMotionValue(0)
+  const springThumbY = useSpring(thumbY, { stiffness: 300, damping: 30 })
+  const timeOffset = useTransform(springThumbY, [-78, 0, 78], [100, 0, -100])
+  const [isDragging, setIsDragging] = useState(false)
+  const [currentOffset, setCurrentOffset] = useState(0)
+
+  useEffect(() => {
+    const unsubscribe = timeOffset.on('change', (val) => {
+      setCurrentOffset(val)
+      onDrag(val)
+    })
+    return unsubscribe
+  }, [timeOffset, onDrag])
+
+  const thumbColor = currentOffset > 20 ? '#8B5CF6' : currentOffset < -20 ? '#06B6D4' : '#FFFFFF'
+
+  return (
+    <div style={{
+      position: 'fixed',
+      left: 12,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      zIndex: 100,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 6,
+      userSelect: 'none',
+    }}>
+      {/* Futur label */}
+      <span style={{ fontSize: 9, color: 'rgba(248,250,252,0.5)', fontWeight: 600, letterSpacing: '0.05em' }}>Futur ↑</span>
+
+      {/* Track */}
+      <div style={{
+        width: 36,
+        height: 200,
+        borderRadius: 18,
+        background: 'linear-gradient(to bottom, #8B5CF6, #7C3AED, #06B6D4)',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+      }}>
+        {/* Center today marker */}
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 20,
+          height: 2,
+          background: 'rgba(255,255,255,0.4)',
+          borderRadius: 1,
+          zIndex: 1,
+        }} />
+
+        {/* Draggable thumb */}
+        <motion.div
+          drag="y"
+          dragConstraints={{ top: -78, bottom: 78 }}
+          dragElastic={0.3}
+          style={{
+            width: 28,
+            height: 44,
+            borderRadius: 14,
+            background: thumbColor,
+            boxShadow: `0 4px 16px rgba(0,0,0,0.5), 0 0 12px ${thumbColor}80`,
+            cursor: 'grab',
+            y: springThumbY,
+            position: 'relative',
+            zIndex: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background 0.2s',
+          }}
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={() => {
+            setIsDragging(false)
+            thumbY.set(0)
+          }}
+          whileDrag={{ cursor: 'grabbing' }}
+        >
+          <div style={{
+            width: 16,
+            height: 2,
+            background: 'rgba(0,0,0,0.3)',
+            borderRadius: 1,
+            boxShadow: '0 3px 0 rgba(0,0,0,0.2)',
+          }} />
+        </motion.div>
+      </div>
+
+      {/* Passé label */}
+      <span style={{ fontSize: 9, color: 'rgba(248,250,252,0.5)', fontWeight: 600, letterSpacing: '0.05em' }}>Passé ↓</span>
+
+      {/* Dynamic label while dragging */}
+      {isDragging && currentOffset > 20 && (
+        <motion.span
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          style={{ fontSize: 9, color: '#8B5CF6', fontWeight: 700, marginTop: 2 }}
+        >Futur ⏭</motion.span>
+      )}
+      {isDragging && currentOffset < -20 && (
+        <motion.span
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          style={{ fontSize: 9, color: '#06B6D4', fontWeight: 700, marginTop: 2 }}
+        >⏮ Passé</motion.span>
+      )}
+    </div>
+  )
+}
+
 export function Timeline() {
   const now = new Date()
-  const [filterYear, setFilterYear] = useState(2028)
+  const todayRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  const { past, today, future } = useMemo(() => {
-    const filtered = mockCapsules.filter(c => {
-      const d = getUnlockDate(c)
-      return !d || d.getFullYear() <= filterYear
-    })
+  const { past, today, future } = (() => {
     const past: Capsule[] = []
     const today: Capsule[] = []
     const future: Capsule[] = []
-    for (const c of filtered) {
+    for (const c of mockCapsules) {
       if (c.status === 'unlocked') { past.push(c); continue }
       const d = getUnlockDate(c)
       if (!d || d < now) { past.push(c); continue }
@@ -149,7 +264,7 @@ export function Timeline() {
       future.push(c)
     }
     return { past, today, future }
-  }, [filterYear])
+  })()
 
   const allSections: { label: string; items: Capsule[]; period: 'past' | 'today' | 'future'; color: string }[] = [
     { label: 'Passé', items: past, period: 'past', color: '#06B6D4' },
@@ -157,10 +272,29 @@ export function Timeline() {
     { label: 'Futur', items: future, period: 'future', color: '#8B5CF6' },
   ]
 
+  useEffect(() => {
+    setTimeout(() => {
+      todayRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 300)
+  }, [])
+
+  const handleScrubberDrag = (offset: number) => {
+    if (!contentRef.current) return
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
+    if (scrollHeight <= 0) return
+    // offset: 100 = future (scroll down), -100 = past (scroll top)
+    const targetRatio = (offset + 100) / 200 // 0=past top, 0.5=center, 1=future bottom
+    const targetY = scrollHeight * targetRatio
+    window.scrollTo({ top: targetY, behavior: 'smooth' })
+  }
+
   let nodeIndex = 0
 
   return (
     <div style={{ minHeight: '100vh', background: 'transparent', paddingBottom: 100 }} className="page-content">
+      {/* Time-travel scrubber */}
+      <TimeScrubber onDrag={handleScrubberDrag} />
+
       {/* Header */}
       <div style={{ padding: '56px 20px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
@@ -170,27 +304,8 @@ export function Timeline() {
         <p style={{ fontSize: 13, color: 'rgba(248,250,252,0.45)' }}>Toutes tes capsules sur la ligne du temps</p>
       </div>
 
-      {/* Date filter */}
-      <div style={{ padding: '0 20px 24px' }}>
-        <div style={{ background: '#1E293B', borderRadius: 16, padding: '16px 18px', border: '1px solid rgba(124,58,237,0.15)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: 12, color: 'rgba(248,250,252,0.5)', fontWeight: 600 }}>Voyager jusqu'à</span>
-            <span style={{ fontSize: 13, color: '#7C3AED', fontWeight: 700 }}>{filterYear}</span>
-          </div>
-          <input
-            type="range" min={2025} max={2030} value={filterYear}
-            onChange={e => setFilterYear(Number(e.target.value))}
-            style={{ width: '100%', accentColor: '#7C3AED', cursor: 'pointer' }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-            <span style={{ fontSize: 10, color: 'rgba(248,250,252,0.3)' }}>2025</span>
-            <span style={{ fontSize: 10, color: 'rgba(248,250,252,0.3)' }}>2030</span>
-          </div>
-        </div>
-      </div>
-
       {/* Timeline */}
-      <div style={{ padding: '0 16px', position: 'relative' }}>
+      <div ref={contentRef} style={{ padding: '0 16px', position: 'relative' }}>
         <div style={{
           position: 'absolute', left: '50%', top: 0, bottom: 0,
           width: 2, transform: 'translateX(-50%)',
@@ -202,7 +317,20 @@ export function Timeline() {
           {allSections.map(section => (
             section.items.length > 0 && (
               <div key={section.label}>
-                <div style={{ position: 'relative', zIndex: 3, padding: '0 0 8px' }}>
+                <div
+                  ref={section.period === 'today' ? todayRef : undefined}
+                  style={{
+                    position: 'relative', zIndex: 3, padding: '0 0 8px',
+                    ...(section.period === 'today' ? {
+                      background: 'rgba(124,58,237,0.08)',
+                      borderRadius: 12,
+                      border: '1px solid rgba(124,58,237,0.25)',
+                      boxShadow: '0 0 20px rgba(124,58,237,0.15)',
+                      padding: '8px 8px',
+                      margin: '0 -8px',
+                    } : {}),
+                  }}
+                >
                   <SectionLabel label={section.label} color={section.color} />
                 </div>
                 {section.items.map(capsule => {
