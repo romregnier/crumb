@@ -5,6 +5,7 @@ import { Create } from './pages/Create'
 import { CapsuleDetail } from './pages/CapsuleDetail'
 import { Profile } from './pages/Profile'
 import { MyCapsules } from './pages/MyCapsules'
+import { Timeline } from './pages/Timeline'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/capsule/:id" element={<CapsuleDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/my-capsules" element={<MyCapsules />} />
+        <Route path="/timeline" element={<Timeline />} />
       </Routes>
     </BrowserRouter>
   )

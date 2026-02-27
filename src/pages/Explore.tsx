@@ -1,191 +1,269 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, MapPin, Puzzle, ChevronUp, ChevronDown } from 'lucide-react'
-import { mockCapsules } from '../mocks/data'
+import { ChevronUp, ChevronDown, X, Lock, Calendar, MapPin, Puzzle } from 'lucide-react'
+import { mockCapsules, type Capsule } from '../mocks/data'
 import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '../components/BottomNav'
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 
-const public_capsules = mockCapsules.filter(c => c.audience === 'public')
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN as string
 
-const markers = [
-  { id: '1', x: '22%', y: '45%', color: '#FF6B35' },
-  { id: '3', x: '58%', y: '30%', color: '#00C9A7' },
-  { id: '6', x: '70%', y: '62%', color: '#00C9A7' },
-  { id: '8', x: '40%', y: '70%', color: '#FF6B35' },
+// Capsules with map positions
+const capsulesWithPos: Array<Capsule & { lat: number; lng: number }> = [
+  { ...mockCapsules[0], lat: 48.8566, lng: 2.3522 },
+  { ...mockCapsules[1], lat: 48.8650, lng: 2.3290 },
+  { ...mockCapsules[2], lat: 48.8842, lng: 2.3385 },
+  { ...mockCapsules[4], lat: 48.8530, lng: 2.3499 },
+  { ...mockCapsules[5], lat: 48.8867, lng: 2.3431 },
+  { ...mockCapsules[6], lat: 48.8720, lng: 2.3600 },
+  { ...mockCapsules[7], lat: 48.8600, lng: 2.3400 },
 ]
 
-export function Explore() {
+function TypeIcon({ type }: { type: Capsule['unlockCondition']['type'] }) {
+  if (type === 'date') return <Calendar size={14} color="#7C3AED" />
+  if (type === 'location') return <MapPin size={14} color="#06B6D4" />
+  return <Puzzle size={14} color="#8B5CF6" />
+}
+
+function CapsuleMiniCard({ capsule, onClose }: { capsule: Capsule & { lat: number; lng: number }; onClose: () => void }) {
   const navigate = useNavigate()
-  const [listOpen, setListOpen] = useState(true)
-
   return (
-    <div style={{ height: '100vh', background: '#0A0A0F', position: 'relative', overflow: 'hidden' }}>
-      {/* Header */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
-        padding: '56px 20px 16px',
-        background: 'linear-gradient(to bottom, rgba(10,10,15,1) 0%, rgba(10,10,15,0) 100%)',
-      }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#F0EAF5' }}>Explorer</h1>
-        <p style={{ fontSize: 13, color: 'rgba(240,234,245,0.5)', marginTop: 2 }}>Capsules autour de toi</p>
-      </div>
-
-      {/* Fake Map */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse at 40% 40%, #0D1B2A 0%, #0A0A0F 60%)',
-      }}>
-        {/* Grid lines */}
-        <svg width="100%" height="100%" style={{ opacity: 0.1 }}>
-          {Array.from({ length: 12 }).map((_, i) => (
-            <line key={`h${i}`} x1="0" y1={`${i * 9}%`} x2="100%" y2={`${i * 9}%`} stroke="#F0EAF5" strokeWidth="0.5"/>
-          ))}
-          {Array.from({ length: 8 }).map((_, i) => (
-            <line key={`v${i}`} x1={`${i * 14}%`} y1="0" x2={`${i * 14}%`} y2="100%" stroke="#F0EAF5" strokeWidth="0.5"/>
-          ))}
-          {/* Curved street lines */}
-          <path d="M0,200 Q200,180 430,220" stroke="#F0EAF5" strokeWidth="1.5" fill="none" opacity="0.3"/>
-          <path d="M0,350 Q150,320 430,380" stroke="#F0EAF5" strokeWidth="1" fill="none" opacity="0.2"/>
-          <path d="M100,0 Q120,300 150,700" stroke="#F0EAF5" strokeWidth="1.5" fill="none" opacity="0.3"/>
-          <path d="M280,0 Q300,400 260,700" stroke="#F0EAF5" strokeWidth="1" fill="none" opacity="0.2"/>
-        </svg>
-
-        {/* User location */}
-        <motion.div
-          animate={{ scale: [1, 1.5, 1], opacity: [0.4, 0.1, 0.4] }}
-          transition={{ duration: 3, repeat: Infinity }}
-          style={{
-            position: 'absolute', left: '50%', top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 60, height: 60, borderRadius: '50%',
-            background: 'rgba(255,107,53,0.2)',
-          }}
-        />
-        <div style={{
-          position: 'absolute', left: '50%', top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 14, height: 14, borderRadius: '50%',
-          background: '#FF6B35', border: '2px solid #fff',
-          boxShadow: '0 0 20px rgba(255,107,53,0.6)',
-        }}/>
-
-        {/* Capsule markers */}
-        {markers.map((m, i) => (
-          <motion.div
-            key={m.id}
-            onClick={() => navigate(`/capsule/${m.id}`)}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: i * 0.15, type: 'spring' }}
-            whileTap={{ scale: 0.85 }}
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+      style={{
+        position: 'absolute',
+        bottom: 140,
+        left: 16,
+        right: 16,
+        background: '#0F172A',
+        borderRadius: 18,
+        border: '1px solid rgba(124,58,237,0.3)',
+        padding: 16,
+        zIndex: 500,
+        boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+      }}
+    >
+      <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(248,250,252,0.1)', border: 'none', borderRadius: 8, padding: 6, cursor: 'pointer' }}>
+        <X size={14} color="#F8FAFC" />
+      </button>
+      <div style={{ display: 'flex', gap: 14 }}>
+        {capsule.image && (
+          <div style={{ width: 64, height: 64, borderRadius: 12, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+            <img src={capsule.image} alt={capsule.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {capsule.status === 'locked' && (
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(3,7,18,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Lock size={16} color="#7C3AED" />
+              </div>
+            )}
+          </div>
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: '#F8FAFC', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {capsule.title}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <TypeIcon type={capsule.unlockCondition.type} />
+            <span style={{ fontSize: 12, color: '#94A3B8' }}>{capsule.unlockCondition.label}</span>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate(`/capsule/${capsule.id}`)}
             style={{
-              position: 'absolute', left: m.x, top: m.y,
-              cursor: 'pointer',
+              background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+              border: 'none', borderRadius: 10, padding: '8px 16px',
+              fontSize: 12, fontWeight: 700, color: '#fff', cursor: 'pointer',
             }}
           >
-            <div style={{
-              width: 40, height: 40, borderRadius: '50%',
-              background: m.color,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: `0 4px 20px ${m.color}60`,
-              border: '2px solid rgba(255,255,255,0.2)',
-            }}>
-              <span style={{ fontSize: 16 }}>📦</span>
-            </div>
-            <div style={{
-              width: 0, height: 0,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderTop: `8px solid ${m.color}`,
-              margin: '0 auto',
-            }}/>
-          </motion.div>
-        ))}
+            {capsule.status === 'locked' ? '🔒 Voir la capsule' : '✨ Ouvrir'}
+          </motion.button>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+export function Explore() {
+  const mapContainer = useRef<HTMLDivElement>(null)
+  const map = useRef<mapboxgl.Map | null>(null)
+  const [listOpen, setListOpen] = useState(false)
+  const [selectedCapsule, setSelectedCapsule] = useState<(Capsule & { lat: number; lng: number }) | null>(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (map.current || !mapContainer.current) return
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/dark-v11',
+      center: [2.3522, 48.8566],
+      zoom: 12,
+    })
+
+    map.current.on('load', () => {
+      // Add nebula-like overlay
+      capsulesWithPos.forEach(capsule => {
+        const color = capsule.unlockCondition.type === 'date' ? '#7C3AED'
+          : capsule.unlockCondition.type === 'location' ? '#06B6D4' : '#8B5CF6'
+        const isLocked = capsule.status === 'locked'
+
+        // Create custom marker element
+        const el = document.createElement('div')
+        el.style.cssText = `
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: ${color};
+          border: 3px solid rgba(255,255,255,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 18px;
+          box-shadow: 0 0 20px ${color}80, 0 4px 12px rgba(0,0,0,0.4);
+          transition: transform 0.2s;
+          ${isLocked ? 'filter: brightness(0.75);' : ''}
+        `
+        el.textContent = isLocked ? '🔒' : '✨'
+        el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.2)' })
+        el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)' })
+        el.addEventListener('click', () => {
+          setSelectedCapsule(capsule)
+          map.current?.flyTo({ center: [capsule.lng, capsule.lat], zoom: 14, duration: 800 })
+        })
+
+        new mapboxgl.Marker({ element: el })
+          .setLngLat([capsule.lng, capsule.lat])
+          .addTo(map.current!)
+      })
+    })
+
+    return () => {
+      map.current?.remove()
+      map.current = null
+    }
+  }, [])
+
+  return (
+    <div style={{ height: '100vh', background: '#030712', position: 'relative', overflow: 'hidden' }} className="page-content">
+      {/* Header overlay */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000,
+        padding: '56px 20px 16px',
+        background: 'linear-gradient(to bottom, rgba(3,7,18,0.95) 0%, rgba(3,7,18,0) 100%)',
+        pointerEvents: 'none',
+      }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#F8FAFC' }}>Explorer</h1>
+        <p style={{ fontSize: 13, color: 'rgba(248,250,252,0.5)', marginTop: 2 }}>🌌 Capsules dans le cosmos</p>
       </div>
 
-      {/* Bottom sheet */}
+      {/* Mapbox container */}
+      <div ref={mapContainer} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+
+      {/* Capsule mini card popup */}
+      <AnimatePresence>
+        {selectedCapsule && (
+          <CapsuleMiniCard capsule={selectedCapsule} onClose={() => setSelectedCapsule(null)} />
+        )}
+      </AnimatePresence>
+
+      {/* Capsule list drawer */}
       <motion.div
-        animate={{ y: listOpen ? 0 : 260 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        animate={{ y: listOpen ? 0 : 'calc(100% - 60px)' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         style={{
-          position: 'absolute', bottom: 80, left: 0, right: 0,
-          background: 'rgba(19,18,26,0.95)',
-          backdropFilter: 'blur(20px)',
+          position: 'absolute',
+          bottom: 80,
+          left: 0,
+          right: 0,
+          background: '#0F172A',
           borderRadius: '20px 20px 0 0',
-          border: '1px solid rgba(240,234,245,0.08)',
-          padding: '0 0 20px',
-          maxHeight: '50vh',
-          overflowY: 'auto',
+          border: '1px solid rgba(124,58,237,0.2)',
+          zIndex: 400,
+          maxHeight: '60vh',
         }}
       >
-        <button
+        {/* Drag handle */}
+        <div
           onClick={() => setListOpen(!listOpen)}
-          style={{
-            width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-            padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          }}
+          style={{ padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
         >
-          <span style={{ fontSize: 15, fontWeight: 600, color: '#F0EAF5' }}>
-            {public_capsules.length} capsules à proximité
-          </span>
-          {listOpen ? <ChevronDown size={18} color="rgba(240,234,245,0.5)" /> : <ChevronUp size={18} color="rgba(240,234,245,0.5)" />}
-        </button>
+          <div>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#F8FAFC' }}>
+              {capsulesWithPos.length} capsules
+            </span>
+            <span style={{ fontSize: 12, color: '#94A3B8', marginLeft: 8 }}>dans cette zone</span>
+          </div>
+          {listOpen ? <ChevronDown size={20} color="#7C3AED" /> : <ChevronUp size={20} color="#7C3AED" />}
+        </div>
 
-        <AnimatePresence>
-          {listOpen && (
+        {/* List */}
+        <div style={{ overflowY: 'auto', maxHeight: 'calc(60vh - 60px)', padding: '0 16px 16px' }}>
+          {capsulesWithPos.map((c) => (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}
+              key={c.id}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setSelectedCapsule(c)
+                setListOpen(false)
+                map.current?.flyTo({ center: [c.lng, c.lat], zoom: 14, duration: 800 })
+              }}
+              style={{
+                background: '#1E293B',
+                borderRadius: 14,
+                padding: '12px 14px',
+                marginBottom: 10,
+                border: '1px solid rgba(124,58,237,0.1)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+              }}
             >
-              {public_capsules.map((c, i) => {
-                const Icon = c.unlockCondition.type === 'date' ? Calendar
-                  : c.unlockCondition.type === 'location' ? MapPin : Puzzle
-                const iconColor = c.unlockCondition.type === 'date' ? '#FF6B35'
-                  : c.unlockCondition.type === 'location' ? '#00C9A7' : '#7B61FF'
-                return (
-                  <motion.div
-                    key={c.id}
-                    onClick={() => navigate(`/capsule/${c.id}`)}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    whileTap={{ scale: 0.98 }}
-                    style={{
-                      background: '#1E1C28',
-                      borderRadius: 14,
-                      padding: '12px 14px',
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      cursor: 'pointer',
-                      border: '1px solid rgba(240,234,245,0.06)',
-                    }}
-                  >
-                    <div style={{
-                      width: 40, height: 40, borderRadius: 12,
-                      background: `${iconColor}20`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                    }}>
-                      <Icon size={18} color={iconColor} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#F0EAF5', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {c.title}
-                      </p>
-                      <p style={{ fontSize: 11, color: 'rgba(240,234,245,0.45)' }}>
-                        {c.unlockCondition.label} · par {c.author.name}
-                      </p>
-                    </div>
-                    <span style={{ fontSize: 12, color: 'rgba(240,234,245,0.4)', flexShrink: 0 }}>
-                      {c.distance}
-                    </span>
-                  </motion.div>
-                )
-              })}
+              {c.image ? (
+                <img src={c.image} alt={c.title} style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+              ) : (
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(124,58,237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20 }}>
+                  {c.status === 'locked' ? '🔒' : '✨'}
+                </div>
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#F8FAFC', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                  <TypeIcon type={c.unlockCondition.type} />
+                  <span style={{ fontSize: 11, color: '#94A3B8' }}>{c.unlockCondition.label}</span>
+                </div>
+              </div>
+              <div style={{
+                padding: '4px 10px', borderRadius: 20,
+                background: c.status === 'locked' ? 'rgba(124,58,237,0.15)' : 'rgba(6,182,212,0.15)',
+                border: `1px solid ${c.status === 'locked' ? 'rgba(124,58,237,0.3)' : 'rgba(6,182,212,0.3)'}`,
+              }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: c.status === 'locked' ? '#7C3AED' : '#06B6D4' }}>
+                  {c.status === 'locked' ? '🔒' : '✓'}
+                </span>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          ))}
+
+          {/* Create capsule here CTA */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate('/create')}
+            style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1))',
+              border: '1px dashed rgba(124,58,237,0.4)',
+              borderRadius: 14, padding: '14px',
+              fontSize: 13, fontWeight: 600, color: '#7C3AED', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+          >
+            ✦ Créer une capsule ici
+          </motion.button>
+        </div>
       </motion.div>
 
       <BottomNav />

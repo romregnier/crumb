@@ -17,9 +17,9 @@ function getCountdown(dateStr?: string): string {
 
 function TypeIcon({ type }: { type: Capsule['unlockCondition']['type'] }) {
   const props = { size: 14, strokeWidth: 2 }
-  if (type === 'date') return <Calendar {...props} color="#FF6B35" />
-  if (type === 'location') return <MapPin {...props} color="#00C9A7" />
-  return <Puzzle {...props} color="#7B61FF" />
+  if (type === 'date') return <Calendar {...props} color="#7C3AED" />
+  if (type === 'location') return <MapPin {...props} color="#06B6D4" />
+  return <Puzzle {...props} color="#8B5CF6" />
 }
 
 interface Props {
@@ -37,13 +37,13 @@ export function CapsuleCard({ capsule, variant = 'default' }: Props) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       style={{
-        background: '#1E1C28',
+        background: '#1E293B',
         borderRadius: 16,
         overflow: 'hidden',
         cursor: 'pointer',
         flexShrink: 0,
         width: variant === 'compact' ? 200 : '100%',
-        border: '1px solid rgba(240,234,245,0.06)',
+        border: '1px solid rgba(124,58,237,0.15)',
       }}
     >
       {capsule.image && (
@@ -56,25 +56,25 @@ export function CapsuleCard({ capsule, variant = 'default' }: Props) {
           {capsule.status === 'locked' && (
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'rgba(10,10,15,0.6)',
+              background: 'rgba(3,7,18,0.6)',
               backdropFilter: 'blur(4px)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Lock size={28} color="#FF6B35" />
+              <Lock size={28} color="#7C3AED" />
             </div>
           )}
         </div>
       )}
       <div style={{ padding: '12px 14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#F0EAF5', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#F8FAFC', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {capsule.title}
           </span>
-          {capsule.status === 'locked' && !capsule.image && <Lock size={14} color="#FF6B35" />}
+          {capsule.status === 'locked' && !capsule.image && <Lock size={14} color="#7C3AED" />}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <TypeIcon type={capsule.unlockCondition.type} />
-          <span style={{ fontSize: 11, color: 'rgba(240,234,245,0.5)' }}>
+          <span style={{ fontSize: 11, color: 'rgba(248,250,252,0.5)' }}>
             {capsule.status === 'locked'
               ? capsule.unlockCondition.type === 'date'
                 ? getCountdown(capsule.unlockCondition.date)
@@ -83,8 +83,8 @@ export function CapsuleCard({ capsule, variant = 'default' }: Props) {
           </span>
           {capsule.distance && (
             <>
-              <span style={{ color: 'rgba(240,234,245,0.2)', fontSize: 11 }}>·</span>
-              <span style={{ fontSize: 11, color: 'rgba(240,234,245,0.4)' }}>{capsule.distance}</span>
+              <span style={{ color: 'rgba(248,250,252,0.2)', fontSize: 11 }}>·</span>
+              <span style={{ fontSize: 11, color: 'rgba(248,250,252,0.4)' }}>{capsule.distance}</span>
             </>
           )}
         </div>
@@ -97,7 +97,7 @@ export function CapsuleCard({ capsule, variant = 'default' }: Props) {
           }}>
             {capsule.author.initials}
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(240,234,245,0.4)' }}>{capsule.author.name}</span>
+          <span style={{ fontSize: 11, color: 'rgba(248,250,252,0.4)' }}>{capsule.author.name}</span>
         </div>
       </div>
     </motion.div>

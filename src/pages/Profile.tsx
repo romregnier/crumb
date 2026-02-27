@@ -10,14 +10,14 @@ export function Profile() {
   const navigate = useNavigate()
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0A0A0F', paddingBottom: 90 }}>
+    <div style={{ minHeight: '100vh', background: '#030712', paddingBottom: 90 }}>
       {/* Header */}
       <div style={{
         padding: '56px 20px 24px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#F0EAF5' }}>Profil</h1>
-        <motion.button whileTap={{ scale: 0.9 }} style={{ background: '#1E1C28', border: 'none', borderRadius: 12, padding: 10, cursor: 'pointer' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#F8FAFC' }}>Profil</h1>
+        <motion.button whileTap={{ scale: 0.9 }} style={{ background: '#1E293B', border: 'none', borderRadius: 12, padding: 10, cursor: 'pointer' }}>
           <Settings size={20} color="rgba(240,234,245,0.6)" />
         </motion.button>
       </div>
@@ -42,7 +42,7 @@ export function Profile() {
           {currentUser.initials}
         </motion.div>
         <div>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#F0EAF5' }}>{currentUser.name}</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#F8FAFC' }}>{currentUser.name}</h2>
           <p style={{ fontSize: 13, color: 'rgba(240,234,245,0.45)', marginTop: 2 }}>@{currentUser.name.toLowerCase()}</p>
           <p style={{ fontSize: 12, color: 'rgba(240,234,245,0.35)', marginTop: 4 }}>Membre depuis janvier 2026</p>
         </div>
@@ -51,14 +51,14 @@ export function Profile() {
       {/* Stats */}
       <div style={{ padding: '0 20px 28px' }}>
         <div style={{
-          background: '#13121A', borderRadius: 20, padding: '20px',
+          background: '#0F172A', borderRadius: 20, padding: '20px',
           display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
           border: '1px solid rgba(240,234,245,0.06)',
         }}>
           {[
-            { label: 'Créées', value: currentUser.capsulesCréées, color: '#FF6B35' },
-            { label: 'Débloquées', value: currentUser.capsulesDebloquees, color: '#00C9A7' },
-            { label: 'Reçues', value: currentUser.capsulesRecues, color: '#7B61FF' },
+            { label: 'Créées', value: currentUser.capsulesCréées, color: '#7C3AED' },
+            { label: 'Débloquées', value: currentUser.capsulesDebloquees, color: '#06B6D4' },
+            { label: 'Reçues', value: currentUser.capsulesRecues, color: '#8B5CF6' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -76,7 +76,7 @@ export function Profile() {
 
       {/* My capsules grid */}
       <div style={{ padding: '0 20px' }}>
-        <h3 style={{ fontSize: 17, fontWeight: 700, color: '#F0EAF5', marginBottom: 14 }}>Mes capsules</h3>
+        <h3 style={{ fontSize: 17, fontWeight: 700, color: '#F8FAFC', marginBottom: 14 }}>Mes capsules</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {myCapsules.map((c, i) => (
             <motion.div
@@ -87,7 +87,7 @@ export function Profile() {
               transition={{ delay: i * 0.08 }}
               whileTap={{ scale: 0.95 }}
               style={{
-                background: '#1E1C28',
+                background: '#1E293B',
                 borderRadius: 16, overflow: 'hidden',
                 cursor: 'pointer', aspectRatio: '1',
                 position: 'relative',
@@ -99,7 +99,7 @@ export function Profile() {
               ) : (
                 <div style={{
                   width: '100%', height: '100%',
-                  background: 'linear-gradient(135deg, #1E1C28, #0D1B2A)',
+                  background: 'linear-gradient(135deg, #1E293B, #0D1B2A)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 32,
                 }}>📦</div>
@@ -110,7 +110,7 @@ export function Profile() {
                   background: 'rgba(10,10,15,0.6)', backdropFilter: 'blur(3px)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Lock size={20} color="#FF6B35" />
+                  <Lock size={20} color="#7C3AED" />
                 </div>
               )}
               <div style={{
@@ -118,7 +118,7 @@ export function Profile() {
                 background: 'linear-gradient(to top, rgba(10,10,15,0.9), transparent)',
                 padding: '12px 10px 10px',
               }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#F0EAF5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: '#F8FAFC', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {c.title}
                 </p>
               </div>

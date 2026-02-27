@@ -8,16 +8,16 @@ export function MyCapsules() {
   const unlocked = mockCapsules.filter(c => c.status === 'unlocked')
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0A0A0F', paddingBottom: 90 }}>
+    <div style={{ minHeight: '100vh', background: '#030712', paddingBottom: 90 }}>
       <div style={{ padding: '56px 20px 24px' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#F0EAF5' }}>Mes Capsules</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#F8FAFC' }}>Mes Capsules</h1>
         <p style={{ fontSize: 13, color: 'rgba(240,234,245,0.45)', marginTop: 4 }}>
           {mockCapsules.length} capsules au total
         </p>
       </div>
 
       <div style={{ padding: '0 20px', marginBottom: 28 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#F0EAF5', marginBottom: 12 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#F8FAFC', marginBottom: 12 }}>
           🔒 Verrouillées ({locked.length})
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -30,7 +30,7 @@ export function MyCapsules() {
       </div>
 
       <div style={{ padding: '0 20px' }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#F0EAF5', marginBottom: 12 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#F8FAFC', marginBottom: 12 }}>
           ✨ Débloquées ({unlocked.length})
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

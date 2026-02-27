@@ -36,7 +36,7 @@ export const mockCapsules: Capsule[] = [
     type: 'temporal',
     status: 'locked',
     audience: 'public',
-    author: { name: 'Romain', initials: 'R', color: '#FF6B35' },
+    author: { name: 'Romain', initials: 'R', color: '#7C3AED' },
     createdAt: '2026-01-15',
     unlockCondition: {
       type: 'date',
@@ -53,7 +53,7 @@ export const mockCapsules: Capsule[] = [
     type: 'temporal',
     status: 'locked',
     audience: 'private',
-    author: { name: 'Marie', initials: 'M', color: '#7B61FF' },
+    author: { name: 'Marie', initials: 'M', color: '#8B5CF6' },
     createdAt: '2026-02-01',
     unlockCondition: {
       type: 'date',
@@ -69,7 +69,7 @@ export const mockCapsules: Capsule[] = [
     type: 'geo',
     status: 'locked',
     audience: 'public',
-    author: { name: 'Lucas', initials: 'L', color: '#00C9A7' },
+    author: { name: 'Lucas', initials: 'L', color: '#06B6D4' },
     createdAt: '2026-01-20',
     unlockCondition: {
       type: 'location',
@@ -86,7 +86,7 @@ export const mockCapsules: Capsule[] = [
     type: 'multi',
     status: 'locked',
     audience: 'person',
-    author: { name: 'Romain', initials: 'R', color: '#FF6B35' },
+    author: { name: 'Romain', initials: 'R', color: '#7C3AED' },
     createdAt: '2026-02-10',
     unlockCondition: {
       type: 'fragments',
@@ -103,7 +103,7 @@ export const mockCapsules: Capsule[] = [
     type: 'temporal',
     status: 'unlocked',
     audience: 'group',
-    author: { name: 'Marie', initials: 'M', color: '#7B61FF' },
+    author: { name: 'Marie', initials: 'M', color: '#8B5CF6' },
     createdAt: '2025-06-01',
     unlockCondition: {
       type: 'date',
@@ -121,7 +121,7 @@ export const mockCapsules: Capsule[] = [
     type: 'geo',
     status: 'unlocked',
     audience: 'public',
-    author: { name: 'Lucas', initials: 'L', color: '#00C9A7' },
+    author: { name: 'Lucas', initials: 'L', color: '#06B6D4' },
     createdAt: '2025-11-15',
     unlockCondition: {
       type: 'location',
@@ -156,7 +156,7 @@ export const mockCapsules: Capsule[] = [
     type: 'multi',
     status: 'unlocked',
     audience: 'public',
-    author: { name: 'Romain', initials: 'R', color: '#FF6B35' },
+    author: { name: 'Romain', initials: 'R', color: '#7C3AED' },
     createdAt: '2025-12-01',
     unlockCondition: {
       type: 'fragments',
@@ -172,7 +172,7 @@ export const mockCapsules: Capsule[] = [
 export const currentUser = {
   name: 'Romain',
   initials: 'R',
-  color: '#FF6B35',
+  color: '#7C3AED',
   capsulesCréées: 3,
   capsulesDebloquees: 12,
   capsulesRecues: 7,

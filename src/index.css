@@ -2,11 +2,13 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0A0A0F;
-  --surface: #13121A;
-  --elevated: #1E1C28;
-  --accent: #FF6B35;
-  --text: #F0EAF5;
+  --bg: #030712;
+  --surface: #0F172A;
+  --elevated: #1E293B;
+  --accent: #7C3AED;
+  --accent2: #06B6D4;
+  --text: #F8FAFC;
+  --text-muted: #94A3B8;
 }
 
 * {
@@ -20,17 +22,107 @@ body {
   color: var(--text);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
+}
+
+/* Star field background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(248,250,252,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 45%, rgba(248,250,252,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 20%, rgba(248,250,252,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 65%, rgba(248,250,252,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 30%, rgba(248,250,252,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 75%, rgba(248,250,252,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 50%, rgba(248,250,252,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 80%, rgba(248,250,252,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 90%, rgba(248,250,252,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 10%, rgba(248,250,252,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 5% 55%, rgba(124,58,237,0.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 75% 85%, rgba(6,182,212,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 38%, rgba(248,250,252,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 12%, rgba(248,250,252,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 3% 93%, rgba(248,250,252,0.3) 0%, transparent 100%),
+    radial-gradient(2px 2px at 65% 55%, rgba(124,58,237,0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 30% 70%, rgba(6,182,212,0.4) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 #root {
   width: 100%;
-  max-width: 430px;
   min-height: 100vh;
-  background-color: var(--bg);
+  background-color: transparent;
   position: relative;
   overflow-x: hidden;
+  z-index: 1;
+}
+
+/* Mobile: constrain to phone width */
+@media (max-width: 767px) {
+  #root {
+    max-width: 430px;
+    margin: 0 auto;
+    background-color: var(--bg);
+  }
+}
+
+/* Desktop nav */
+.desktop-nav {
+  display: none;
+}
+.bottom-nav {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .desktop-nav {
+    display: flex;
+  }
+  .bottom-nav {
+    display: none !important;
+  }
+  .page-content {
+    padding-top: 80px !important;
+  }
+}
+
+/* Desktop layouts */
+@media (min-width: 768px) {
+  .home-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .create-grid {
+    display: grid !important;
+    grid-template-columns: 280px 1fr;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .timeline-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .capsule-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -42,4 +134,21 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--elevated);
   border-radius: 2px;
+}
+
+/* Mapbox popup override */
+.mapboxgl-popup-content {
+  background: #1E293B !important;
+  border: 1px solid rgba(124,58,237,0.3) !important;
+  border-radius: 12px !important;
+  color: #F8FAFC !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+.mapboxgl-popup-tip {
+  border-top-color: #1E293B !important;
+}
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right {
+  display: none;
 }
