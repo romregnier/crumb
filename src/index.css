@@ -69,6 +69,11 @@ body::before {
   }
 }
 
+/* Hide mobile-only elements on desktop */
+.md-hide {
+  display: flex;
+}
+
 /* Desktop nav */
 .desktop-nav {
   display: none;
@@ -82,6 +87,9 @@ body::before {
     display: flex;
   }
   .bottom-nav {
+    display: none !important;
+  }
+  .md-hide {
     display: none !important;
   }
   .page-content {

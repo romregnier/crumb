@@ -25,11 +25,12 @@ export function Home() {
         padding: '56px 20px 16px',
       }} className="md-hide">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img src="/logo-gradient.png" alt="Crumb" style={{ width: 30, height: 30, objectFit: 'contain' }} />
           <span style={{
-            fontSize: 24, fontWeight: 800,
+            fontSize: 22, fontWeight: 800,
             background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>✦ crumb</span>
+          }}>crumb</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <motion.button

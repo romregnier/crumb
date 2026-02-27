@@ -33,8 +33,9 @@ export function BottomNav() {
         zIndex: 1000,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 22, fontWeight: 800, background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            ✦ crumb
+          <img src="/logo-gradient.png" alt="Crumb" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          <span style={{ fontSize: 20, fontWeight: 800, background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            crumb
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
